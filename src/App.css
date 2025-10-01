@@ -1,0 +1,7 @@
+/* src/App.css */
+@import '@rainbow-me/rainbowkit/styles.css';
+
+/* Avoid resetting RainbowKit styles */
+.walletconnect-modal, .rainbow-connect-button {
+  font-family: inherit;
+}
