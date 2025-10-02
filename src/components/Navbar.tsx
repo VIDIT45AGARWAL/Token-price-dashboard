@@ -1,7 +1,21 @@
 import type { FC } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useContext } from 'react';
+import { AuthContext } from '../providers/AuthProvider';
+import { auth, googleProvider } from '../firebase';
+import { signInWithPopup, signOut } from 'firebase/auth';
 
 const Navbar: FC = () => {
+  const { currentUser } = useContext(AuthContext);
+
+  const handleGoogleLogin = async () => {
+    await signInWithPopup(auth, googleProvider);
+  }
+
+  const handleLogout = async () => {
+    await signOut(auth);
+  }
+
   return (
     <nav className="bg-black p-4 px-6 sm:px-10 flex flex-row justify-between items-center border-b-4 border-b-gray-500">
       <div className="text-emerald-500 text-2xl sm:text-3xl font-bold flex flex-row items-center">
@@ -66,6 +80,23 @@ const Navbar: FC = () => {
           );
         }}
       </ConnectButton.Custom>
+      {currentUser ? (
+          <button
+            onClick={handleLogout}
+            className="bg-emerald-500 rounded-2xl p-2 sm:p-3 text-white font-bold text-sm sm:text-base hover:bg-emerald-600 transition"
+          >
+            Logout
+          </button>
+        ) : (
+          <div className="flex gap-2">
+            <button
+              onClick={handleGoogleLogin}
+              className="bg-emerald-500 rounded-2xl p-2 sm:p-3 text-white font-bold text-sm sm:text-base hover:bg-emerald-600 transition"
+            >
+              Google
+            </button>
+          </div>
+        )}
     </nav>
   );
 };
