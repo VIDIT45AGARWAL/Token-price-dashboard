@@ -1,73 +1,113 @@
-# React + TypeScript + Vite
+```markdown
+# Token Price Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A **Web3 dashboard** built with **React, TypeScript, and Vite**, showcasing real-time token prices (ETH, BTC, LINK, UNI) using **Chainlink oracles**, historical price charts via **CoinGecko**, and secure wallet integration with **Wagmi**.  
+The app also supports **Firebase Authentication** (Google) with a fully responsive design for both mobile and desktop.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Project Overview
 
-## React Compiler
+This project fulfills the task of designing a **user-centric Web3 application** with real-time functionality and secure wallet integration.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Live token prices** from Chainlink oracles  
+- **Historical price charts** from CoinGecko  
+- **Wallet balances** via Wagmi  
+- **Multi-login system** with Firebase Authentication  
+- **Responsive UI** optimized for mobile and desktop   
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## ✨ Features
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 1. Real-Time Token Prices (Chainlink Oracles)
+- Oracles Used: Chainlink price feeds for ETH/USD, BTC/USD, LINK/USD, and UNI/USD on Ethereum Mainnet.  
+- Feed Addresses:
+  - ETH: `0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419`  
+  - BTC: `0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c`  
+  - LINK: `0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c`  
+  - UNI: `0x553303d460EE0afB37EdFf9bE42922D8FF63220e`  
+- Updates every **30 seconds** with React Query (`refetchInterval`).  
+- **Simulated ±0.5% fluctuations** to mimic real-time activity.  
+- Color-coded percentage change (+green / –red).    
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 2. Historical Price Charts
+- **API**: CoinGecko (`/coins/{coinId}/market_chart`).  
+- Supports **2d / 7d / 30d** historical views.  
+- Charts rendered with **Chart.js**.    
+
+---
+
+### 3. Secure Wallet Integration
+- **Library**: Wagmi + ethers.js  
+- Features:
+  - Connect Ethereum wallet (MetaMask, WalletConnect, etc.)  
+  - View **wallet address** (truncated on mobile)
+
+---
+
+### 4. Authentication (Firebase)
+- Providers: **Google**  
+- Handled via Firebase Authentication.  
+- User session persistence with `AuthProvider.tsx`.  
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: React, TypeScript, Vite, Tailwind CSS  
+- **Web3**: Wagmi, ethers.js, Chainlink  
+- **APIs**: Chainlink (live prices), CoinGecko (charts)  
+- **Auth**: Firebase Authentication  
+- **State Management**: tanstackQuery  
+- **Charts**: Chart.js    
+
+---
+
+## 🧩 Setup Instructions
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/your-username/token-dashboard.git
+cd real-time-token
+````
+
+### 2. Install Dependencies
+
+```bash
+npm install
+# or
+yarn install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 3. Environment Variables
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Create a `.env` file in the root directory:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+VITE_COIN_GECKO_API=
+VITE_INFURA_KEY=
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
 ```
+
+### 4. Run Development Server
+
+```bash
+npm run dev
+# or
+yarn dev
+```
+
+### 5. Build for Production
+
+```bash
+npm run build
+```
+
+---
+
+
