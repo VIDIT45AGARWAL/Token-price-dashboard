@@ -3,7 +3,6 @@ import TokenCard from '../components/TokenCard';
 import { useTokenPrices } from '../hooks/useTokenPrices';
 import Navbar from '../components/Navbar';
 import ChartComponent from '../components/ChartComponent';
-import { tokenPriceHistory } from '../utils/chainLinkFeeds';
 import WalletInfo from '../components/WalletInfo';
 
 const Dashboard: FC = () => {
@@ -26,9 +25,8 @@ const Dashboard: FC = () => {
       <WalletInfo/>
       <div className="text-white grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         {tokens?.map((token) => (
-          <div key={token.symbol} className="bg-white dark:bg-gray-800 p-4 rounded shadow">
-            <h2 className="text-xl font-semibold mb-2">{token.symbol} Price Chart (Recent Trends)</h2>
-            <ChartComponent history={tokenPriceHistory[token.symbol]} tokenSymbol={token.symbol} />
+          <div key={token.symbol} className="bg-gray-800 p-4 rounded-lg shadow">
+            <ChartComponent key={token.symbol} token={token} apiKey={import.meta.env.VITE_COIN_GECKO_API} />
           </div>
         ))}
       </div>

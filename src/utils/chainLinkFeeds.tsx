@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import provider from './chainLinkProvider';
+import {getProvider} from './chainLinkProvider';
 
 const aggregatorABI = [
   'function latestRoundData() view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)',
@@ -33,14 +33,6 @@ export const tokens: Token[] = [
     feedAddress: '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c',
   },
   {
-    name: 'Solana',
-    symbol: 'SOL',
-    price: 0,
-    change: 0,
-    updatedAt: 0,
-    feedAddress: '0x4ffC43a60e009B551865a93d232E33fcE9f01507',
-  },
-  {
     name: 'Chainlink',
     symbol: 'LINK',
     price: 0,
@@ -58,29 +50,29 @@ export const tokens: Token[] = [
   },
 ];
 
-export interface PricePoint {
-  timestamp: number;
-  price: number;
-}
+// export interface PricePoint {
+//   timestamp: number;
+//   price: number;
+// }
 
-export const tokenPriceHistory: Record<string, PricePoint[]> = {
-  ETH: [],
-  BTC: [],
-  SOL: [],
-  LINK: [],
-  UNI: [],
-};
+// export const tokenPriceHistory: Record<string, PricePoint[]> = {
+//   ETH: [],
+//   BTC: [],
+//   SOL: [],
+//   LINK: [],
+//   UNI: [],
+// };
 
 const lastUpdatedAt: Record<string, number> = {
   ETH: 0,
   BTC: 0,
-  SOL: 0,
   LINK: 0,
   UNI: 0,
 };
 
 export const fetchLivePrice = async (token: Token): Promise<Partial<Token>> => {
   try {
+    const provider= await getProvider();
     const checksumAddress = ethers.getAddress(token.feedAddress);
     const contract = new ethers.Contract(checksumAddress, aggregatorABI, provider);
     const roundData = await contract.latestRoundData();
@@ -99,35 +91,17 @@ export const fetchLivePrice = async (token: Token): Promise<Partial<Token>> => {
 
 export const fetchAllLivePrices = async (): Promise<Token[]> => {
   console.log('Starting fetchAllLivePrices');
-  const updatedTokens = await Promise.all(
-    tokens.map(async (token) => {
-      const { price, updatedAt } = await fetchLivePrice(token);
-      let newPrice = price ?? token.price;
-      let newUpdatedAt = updatedAt ?? token.updatedAt;
-
-      if (newPrice === token.price || newUpdatedAt === lastUpdatedAt[token.symbol]) {
-        const fluctuation = (Math.random() * 1 - 0.5) / 100; 
-        newPrice = (newPrice || 1000) * (1 + fluctuation);
-        newPrice = parseFloat(newPrice.toFixed(2));
-        newUpdatedAt = Date.now();
-        console.log(`Applied fluctuation to ${token.symbol}: ${newPrice} (reason: ${newPrice === token.price ? 'fetch failed' : 'stale feed'})`);
-      }
-
-      const lastHistoryPrice = tokenPriceHistory[token.symbol].slice(-1)[0]?.price ?? 0;
-      if (newPrice !== lastHistoryPrice && newPrice > 0) {
-        tokenPriceHistory[token.symbol].push({ timestamp: newUpdatedAt, price: newPrice });
-        if (tokenPriceHistory[token.symbol].length > 100) {
-          tokenPriceHistory[token.symbol].shift();
-        }
-      }
-
-      const change = lastHistoryPrice > 0 ? ((newPrice - lastHistoryPrice) / lastHistoryPrice) * 100 : 0;
-
-      lastUpdatedAt[token.symbol] = newUpdatedAt;
-
-      return { ...token, price: newPrice, change: parseFloat(change.toFixed(2)), updatedAt: newUpdatedAt };
-    })
-  );
+  const updatedTokens = [];
+  for (const token of tokens) {
+    const { price, updatedAt } = await fetchLivePrice(token);
+    let newPrice = price ?? token.price;
+    let newUpdatedAt = updatedAt ?? token.updatedAt;
+    const prevPrice = lastUpdatedAt[token.symbol] ? tokens.find(t => t.symbol === token.symbol)!.price : 0;
+    const change = prevPrice > 0 ? ((newPrice - prevPrice) / prevPrice) * 100 : 0;
+    lastUpdatedAt[token.symbol] = newUpdatedAt;
+    updatedTokens.push({ ...token, price: newPrice, change: parseFloat(change.toFixed(2)), updatedAt: newUpdatedAt });
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
   console.log('Fetched tokens:', updatedTokens);
   return updatedTokens;
 };

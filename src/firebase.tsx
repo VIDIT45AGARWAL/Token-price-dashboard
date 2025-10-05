@@ -3,7 +3,7 @@ import { getAuth, GoogleAuthProvider} from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig={
-    apiKey: "AIzaSyD8Ki6ybO4QxjOOAJN1i7mWvxeEcrlo8V0",
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain: "token-dashboard-b22c6.firebaseapp.com",
     projectId: "token-dashboard-b22c6",
     storageBucket: "token-dashboard-b22c6.firebasestorage.app",
