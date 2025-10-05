@@ -17,8 +17,8 @@ const Navbar: FC = () => {
   }
 
   return (
-    <nav className="bg-black p-4 px-6 sm:px-10 flex flex-row justify-between items-center border-b-4 border-b-gray-500">
-      <div className="text-emerald-500 text-2xl sm:text-3xl font-bold flex flex-row items-center">
+    <nav className="bg-black p-4 px-6 sm:px-10 space-y-2 md:space-y-0 flex flex-col md:flex-row justify-end items-center border-b-4 border-b-gray-500">
+      <div className="text-emerald-500 text-2xl sm:text-3xl font-bold flex flex-row items-center md:mr-auto">
         <i className="bx bx-stats mr-2"></i> TokenTrak
       </div>
       <ConnectButton.Custom>
@@ -40,11 +40,11 @@ const Navbar: FC = () => {
 
           return (
             <div
-              className="bg-emerald-500 rounded-2xl p-2 sm:p-3 text-white font-bold text-sm sm:text-base flex items-center"
+              className="bg-emerald-500 rounded-2xl p-2 text-white font-bold text-sm sm:text-base flex items-center justify-center"
               {...(!ready && {
                 'aria-hidden': true,
                 style: { opacity: 0, pointerEvents: 'none' },
-              })}
+              })} text-
             >
               {!ready ? (
                 <span>Loading...</span>
@@ -83,7 +83,7 @@ const Navbar: FC = () => {
       {currentUser ? (
           <button
             onClick={handleLogout}
-            className="bg-emerald-500 rounded-2xl p-2 sm:p-3 text-white font-bold text-sm sm:text-base hover:bg-emerald-600 transition"
+            className="bg-emerald-500 rounded-2xl ml-3 p-3 text-white font-bold text-sm sm:text-base hover:bg-emerald-600 transition"
           >
             Logout
           </button>
@@ -91,9 +91,9 @@ const Navbar: FC = () => {
           <div className="flex gap-2">
             <button
               onClick={handleGoogleLogin}
-              className="bg-emerald-500 rounded-2xl p-2 sm:p-3 text-white font-bold text-sm sm:text-base hover:bg-emerald-600 transition"
+              className="bg-emerald-500 rounded-2xl ml-3 p-3 text-white font-bold text-sm sm:text-base hover:bg-emerald-600 transition"
             >
-              Google
+              Login
             </button>
           </div>
         )}

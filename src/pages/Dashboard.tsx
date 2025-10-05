@@ -15,15 +15,15 @@ const Dashboard: FC = () => {
   return (
     <>
     <Navbar/>
-    <div className="container mx-auto p-4 bg-black">
-      <h1 className="text-2xl text-white font-bold mb-4 text-center">Token Price Dashboard</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 text-white lg:grid-cols-3 gap-4 mb-8">
+    <div className="w-screen px-10 py-6 bg-black">
+      <h1 className="text-2xl text-emerald-500 font-bold mb-4 text-center">Token Price Dashboard</h1>
+      <div className="grid  grid-cols-1 sm:grid-cols-2 text-white gap-4 mb-8">
         {tokens?.map((token) => (
           <TokenCard key={token.symbol} token={token} isLoading={isLoading} />
         ))}
       </div>
       <WalletInfo/>
-      <div className="text-white grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div className="text-white grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
         {tokens?.map((token) => (
           <div key={token.symbol} className="bg-gray-800 p-4 rounded-lg shadow">
             <ChartComponent key={token.symbol} token={token} apiKey={import.meta.env.VITE_COIN_GECKO_API} />
@@ -31,7 +31,7 @@ const Dashboard: FC = () => {
         ))}
       </div>
       <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
-        <h2 className="text-xl font-semibold mb-2">Token Comparison</h2>
+        <h2 className="text-emerald-500 text-xl font-semibold mb-2">Token Comparison</h2>
         <div className="overflow-x-auto">
           <table className="w-full table-auto">
             <thead>
@@ -45,12 +45,12 @@ const Dashboard: FC = () => {
             <tbody>
               {tokens?.map((token) => (
                 <tr key={token.symbol} className="border-b dark:border-gray-700">
-                  <td className="p-2">{token.name} ({token.symbol})</td>
-                  <td className="p-2">${token.price.toFixed(2)}</td>
+                  <td className="p-2 text-white font-bold">{token.name} ({token.symbol})</td>
+                  <td className="text-gray-400 p-2">${token.price.toFixed(2)}</td>
                   <td className={`${token.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                     {token.change.toFixed(2)}%
                   </td>
-                  <td className="p-2">{new Date(token.updatedAt).toLocaleTimeString()}</td>
+                  <td className="p-2 text-gray-400">{new Date(token.updatedAt).toLocaleTimeString()}</td>
                 </tr>
               ))}
             </tbody>

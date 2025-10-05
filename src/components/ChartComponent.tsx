@@ -55,17 +55,20 @@ const ChartComponent: FC<ChartComponentProps> = ({ token, apiKey }) => {
   const rangeMs = timeRange === '2d' ? 2 * 24 * 60 * 60 * 1000 : timeRange === '7d' ? 7 * 24 * 60 * 60 * 1000 : 30 * 24 * 60 * 60 * 1000;
   const filteredPrices = historical?.prices.filter(([Timestamp])=> now-Timestamp <=rangeMs) || [];
 
-  const labels = filteredPrices.map(([timestamp]) =>
-    new Date(timestamp).toLocaleString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-      month: 'short',
-      day: 'numeric',
-    })
-  );
+  const maxLabels=10;
+  const step=Math.max(1, Math.floor(filteredPrices.length/maxLabels));
+  const labels = filteredPrices
+    .filter((_, index) => index % step === 0)
+    .map(([timestamp]) =>
+      new Date(timestamp).toLocaleString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        month: 'short',
+        day: 'numeric',
+      })
+    );
 
-  const prices = filteredPrices.map(([, price]) => price);
-
+  const prices = filteredPrices.filter((_, index) => index % step === 0).map(([, price]) => price);
   const data = {
     labels,
     datasets: [
@@ -82,41 +85,75 @@ const ChartComponent: FC<ChartComponentProps> = ({ token, apiKey }) => {
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top' as const,
+        labels: {
+          font: {
+            size: window.innerWidth < 640 ? 12 : 14,
+          },
+          color: '#fff',
+        },
       },
       title: {
         display: true,
         text: `${token.name} Price - Last ${timeRange === '2d' ? '2 Days' : timeRange === '7d' ? '7 Days' : '30 Days'}`,
         color: '#fff',
+        font:{
+          size: window.innerWidth < 640 ? 14 : 16,
+        }
+      },
+      tooltip: {
+        bodyFont: { size: window.innerWidth < 640 ? 10 : 12 },
+        titleFont: { size: window.innerWidth < 640 ? 12 : 14 },
       },
     },
     scales: {
-      x: { ticks: { color: '#fff' } },
-      y: {
-        ticks: { color: '#fff' },
-        title: { display: true, text: 'Price (USD)', color: '#fff' },
+      x: {
+        ticks: {
+          color: '#fff',
+          maxRotation: 45,
+          minRotation: 45,
+          font: { size: window.innerWidth < 640 ? 10 : 12 },
+        },
       },
+      y: {
+        ticks: {
+          color: '#fff',
+          font: { size: window.innerWidth < 640 ? 10 : 12 },
+        },
+        title: {
+          display: true,
+          text: 'Price (USD)',
+          color: '#fff',
+          font: { size: window.innerWidth < 640 ? 12 : 14 },
+        },
+      },
+    },
+    layout: {
+      padding: window.innerWidth < 640 ? 10 : 20,
     },
   };
 
   return(
-    <div className="bg-gray-800 p-4 rounded-lg shadow">
-      <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-white">{token.symbol} Price Chart</h2>
+    <div className="bg-gray-800 p-2 sm:p-4 rounded-lg shadow w-full max-w-full">
+      <div className="mb-2 sm:mb-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+        <h2 className="text-base sm:text-xl font-semibold text-white">{token.symbol} Price Chart</h2>
         <select
           value={timeRange}
           onChange={(e) => setTimeRange(e.target.value as '2d' | '7d' | '30d')}
-          className="bg-gray-700 text-white rounded p-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="bg-gray-700 text-white text-sm sm:text-base rounded p-2 sm:p-2.5 w-full sm:w-auto max-w-[150px] focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           <option value="2d">2 Days</option>
           <option value="7d">7 Days</option>
           <option value="30d">30 Days</option>
         </select>
       </div>
-      <Line data={data} options={options} />
-      <p className="text-gray-400 text-sm mt-2">
+      <div className="relative h-[250px] sm:h-[400px]">
+        <Line data={data} options={options} />
+      </div>
+      <p className="text-gray-400 text-xs sm:text-sm mt-2 text-center">
         {filteredPrices.length} data points from CoinGecko API
       </p>
     </div>
