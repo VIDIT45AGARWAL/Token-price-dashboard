@@ -1,4 +1,3 @@
-```markdown
 # Token Price Dashboard
 
 A **Web3 dashboard** built with **React, TypeScript, and Vite**, showcasing real-time token prices (ETH, BTC, LINK, UNI) using **Chainlink oracles**, historical price charts via **CoinGecko**, and secure wallet integration with **Wagmi**.  
