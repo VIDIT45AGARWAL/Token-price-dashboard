@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import {getProvider} from './chainLinkProvider';
+import { getProvider } from './chainLinkProvider';
 
 const aggregatorABI = [
   'function latestRoundData() view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)',
@@ -13,6 +13,7 @@ export interface Token {
   change: number;
   updatedAt: number;
   feedAddress: string;
+  isSimulated?: boolean;
 }
 
 export const tokens: Token[] = [
@@ -50,20 +51,14 @@ export const tokens: Token[] = [
   },
 ];
 
-// export interface PricePoint {
-//   timestamp: number;
-//   price: number;
-// }
-
-// export const tokenPriceHistory: Record<string, PricePoint[]> = {
-//   ETH: [],
-//   BTC: [],
-//   SOL: [],
-//   LINK: [],
-//   UNI: [],
-// };
-
 const lastUpdatedAt: Record<string, number> = {
+  ETH: 0,
+  BTC: 0,
+  LINK: 0,
+  UNI: 0,
+};
+
+const previousPrices: Record<string, number> = {
   ETH: 0,
   BTC: 0,
   LINK: 0,
@@ -72,7 +67,7 @@ const lastUpdatedAt: Record<string, number> = {
 
 export const fetchLivePrice = async (token: Token): Promise<Partial<Token>> => {
   try {
-    const provider= await getProvider();
+    const provider = await getProvider();
     const checksumAddress = ethers.getAddress(token.feedAddress);
     const contract = new ethers.Contract(checksumAddress, aggregatorABI, provider);
     const roundData = await contract.latestRoundData();
@@ -91,15 +86,37 @@ export const fetchLivePrice = async (token: Token): Promise<Partial<Token>> => {
 
 export const fetchAllLivePrices = async (): Promise<Token[]> => {
   console.log('Starting fetchAllLivePrices');
-  const updatedTokens = [];
+  const updatedTokens: Token[] = [];
   for (const token of tokens) {
     const { price, updatedAt } = await fetchLivePrice(token);
     let newPrice = price ?? token.price;
     let newUpdatedAt = updatedAt ?? token.updatedAt;
-    const prevPrice = lastUpdatedAt[token.symbol] ? tokens.find(t => t.symbol === token.symbol)!.price : 0;
+    let isSimulated = false;
+
+    if (newPrice > 0) {
+      const fluctuation = (Math.random() * 1 - 0.5) / 100;
+      newPrice *= 1 + fluctuation;
+      newPrice = parseFloat(newPrice.toFixed(2));
+      newUpdatedAt = Date.now();
+      isSimulated = true;
+      console.log(`Applied fluctuation to ${token.symbol}: ${newPrice}`);
+    }
+
+    const prevPrice = previousPrices[token.symbol] || 0;
     const change = prevPrice > 0 ? ((newPrice - prevPrice) / prevPrice) * 100 : 0;
+
+    previousPrices[token.symbol] = newPrice;
+
     lastUpdatedAt[token.symbol] = newUpdatedAt;
-    updatedTokens.push({ ...token, price: newPrice, change: parseFloat(change.toFixed(2)), updatedAt: newUpdatedAt });
+
+    updatedTokens.push({
+      ...token,
+      price: newPrice,
+      change: parseFloat(change.toFixed(2)),
+      updatedAt: newUpdatedAt,
+      isSimulated,
+    });
+
     await new Promise(resolve => setTimeout(resolve, 500));
   }
   console.log('Fetched tokens:', updatedTokens);
